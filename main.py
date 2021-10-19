@@ -22,11 +22,9 @@ default_url = "https://alerts.weather.gov/cap/wwaatmget.php?x=CAC097"
 client = discord.Client()
 
 discord_token = "YOUR TOKEN"
+current_watches = []
 
 def getwarnings(url):
-
-    global current_watches
-    current_watches = []
 
     if not url:
         url = default_url
@@ -38,17 +36,17 @@ def getwarnings(url):
 
     if entries[0].title.text == "There are no active watches, warnings or advisories":
         return False
-    else:
-        for entry in entries:
-            watch = {}
-            watch['title'] = entry.title.text
-            watch['link'] = entry.id.text
-            watch['summary'] = entry.summary.text
-            watch['event'] = entry.event.text
-            watch['effective'] = entry.effective.text
-            watch['expires'] = entry.expires.text
-            current_watches.append(watch)
-        return True
+    
+    for entry in entries:
+        watch = {}
+        watch['title'] = entry.title.text
+        watch['link'] = entry.id.text
+        watch['summary'] = entry.summary.text
+        watch['event'] = entry.event.text
+        watch['effective'] = entry.effective.text
+        watch['expires'] = entry.expires.text
+        current_watches.append(watch)
+    return True
         
 @client.event
 async def on_ready():
@@ -60,7 +58,9 @@ async def on_message(message):
         return
 
     if message.content.startswith('!get'):
+
         status = False
+        
         if not len(message.content.split(" ")) == 2:
             status = getwarnings("")
         else:
