@@ -36,7 +36,6 @@ def getwarnings(url):
 
     entries = soup.findAll('entry')
 
-    print(entries)
     if entries[0].title.text == "There are no active watches, warnings or advisories":
         return False
     else:
