@@ -26,6 +26,9 @@ current_zone = ""
 
 def getwarnings(url):
     global current_zone
+    global current_watches
+
+    current_watches = []
 
     if not url:
         url = default_url
@@ -67,7 +70,10 @@ async def on_message(message):
         if not len(message.content.split(" ")) == 2:
             status = getwarnings("")
         else:
-            status = getwarnings(message.content.split(" ")[1])
+            if message.content.split(" ")[1].startswith("https://"):
+                status = getwarnings(message.content.split(" ")[1])
+            else:
+                status = getwarnings("https://alerts.weather.gov/cap/wwaatmget.php?x=" + message.content.split(" ")[1])
         
         if status:
             await message.channel.send(current_zone)
