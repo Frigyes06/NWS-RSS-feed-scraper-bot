@@ -1,13 +1,11 @@
 '''
 Copyright (c) 2021 Frigyes06
-
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
-
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 '''
@@ -22,15 +20,20 @@ default_url = "https://alerts.weather.gov/cap/wwaatmget.php?x=CAC097"
 client = discord.Client()
 
 discord_token = "YOUR TOKEN"
+
 current_watches = []
+current_zone = ""
 
 def getwarnings(url):
+    global current_zone
 
     if not url:
         url = default_url
     
     response = requests.get(url)
     soup = BeautifulSoup(response.content, features="xml")
+
+    current_zone = soup.title.text
 
     entries = soup.findAll('entry')
 
@@ -67,10 +70,13 @@ async def on_message(message):
             status = getwarnings(message.content.split(" ")[1])
         
         if status:
+            await message.channel.send(current_zone)
             for watch in current_watches:
                 embed = discord.Embed(title = watch['title'], url = watch['link'], description = watch['summary'])
                 await message.channel.send(embed = embed)
-        else:
-            await message.channel.send("There are no active watches, warnings or advisories")
+            return
+        
+        await message.channel.send(current_zone)
+        await message.channel.send("There are no active watches, warnings or advisories")
 
 client.run(discord_token)
