@@ -19,7 +19,7 @@ default_url = "https://alerts.weather.gov/cap/wwaatmget.php?x=CAC097"
 
 client = discord.Client()
 
-discord_token = "ODk5ODQ4NDc5MDMwMDAxNjk0.YW4vMw.gTTs9mON3T-NOt-Ea0j-oLbuM1Q"
+discord_token = "YOUR TOKEN"
 
 current_watches = []
 current_zone = ""
