@@ -56,12 +56,20 @@ def getwarnings(url):
         
 @client.event
 async def on_ready():
+    game = discord.Game("!help")
+    await client.change_presence(status=discord.Status.online, activity=game)
     print('We have logged in as {0.user}'.format(client))
 
 @client.event
 async def on_message(message):
     if message.author == client.user:
         return
+
+    if not message.content.startswith("!"):
+        return
+
+    if message.content.startswith("!help"):
+        await message.channel.send("Usage:\n!get - gives the current watches for Sonoma, CA\n!get california - gives the current watches for California\n!get {Area code, like CAC097} gives the current watches for that area.\n!get {NWS RSS feed url} gives the current watches from the provided url")
 
     if message.content.startswith('!get'):
 
