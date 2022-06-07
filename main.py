@@ -61,10 +61,12 @@ def getwarnings(url):
 
 @client.event
 async def on_ready():
+    global bot_ok
     game = discord.Game("!help")
     await client.change_presence(status=discord.Status.online, activity=game)
     print('We have logged in as {0.user}'.format(client))
     bot_ok = True
+
 
 @client.event
 async def on_message(message):
@@ -84,12 +86,12 @@ async def on_message(message):
         if not len(message.content.split(" ")) == 2:
             status = getwarnings("")
         else:
-            if message.content.split(" ")[1].startswith("https://"):
+            parameter = message.content.split(" ")[1]
+        
+            if parameter.startswith("https://"):
                 status = getwarnings(message.content.split(" ")[1])
-            elif message.content.split(" ")[1].startswith("california") or message.content.split(" ")[1].startswith("California"):
+            if parameter.startswith("california") or parameter.startswith("California") or parameter.startswith("CA"):
                 status = getwarnings("https://alerts.weather.gov/cap/ca.php?x=1")
-            elif message.content.split(" ")[1].startswith("test"):
-                await message.channel.send("This is a test of the serious warning system. <@&983063004914520115> I repeat this is a test")
             else:
                 status = getwarnings("https://alerts.weather.gov/cap/wwaatmget.php?x=" + message.content.split(" ")[1])
         
@@ -103,26 +105,29 @@ async def on_message(message):
         await message.channel.send(current_zone)
         await message.channel.send("There are no active watches, warnings or advisories")
 
+
 @tasks.loop(minutes=1)
 async def get_new_warnings():
+    
     to_announce = []
     print("started retrieving warnings")
     getwarnings(default_url)
+    
     for watch in current_watches:
-        if watch in previous_watches:
-            pass
         if watch not in previous_watches:
             to_announce.append(watch)
             previous_watches.append(watch)
+    
     for watch in previous_watches:
-        if watch in current_watches:
-            pass
         if watch not in current_watches:
             previous_watches.remove(watch)
+    
     print(to_announce)
+    
     if bot_ok:
         channel = Client.get_channel('919341495243407380')
         await channel.send("New Watches, Warnings and Advisories for Sonoma (CAC097) California Issued by the National Weather Service")
+        
         for watch in current_watches:
             embed = discord.Embed(title = watch['title'], url = watch['link'], description = watch['summary'])
             await channel.send(embed = embed)
